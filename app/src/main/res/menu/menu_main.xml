@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.jonass.filmespopulares.app.com.jonass.filmespopulares.activities.MainActivity">
+    <item
+        android:id="@+id/action_configuracoes"
+        android:orderInCategory="100"
+        android:title="@string/action_configuracoes"
+        android:icon="@drawable/ic_sort"
+        app:showAsAction="always" />
+</menu>
