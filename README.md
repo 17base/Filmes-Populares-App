@@ -10,3 +10,4 @@ Essa aplicação foi desenvolvida como parte do programa *Android Developer Nano
 # Bibliotecas
 - [Picasso](https://github.com/square/picasso)
 - [Typer](https://github.com/elmargomez/typer)
+- [SweetAlert](https://github.com/pedant/sweet-alert-dialog)
