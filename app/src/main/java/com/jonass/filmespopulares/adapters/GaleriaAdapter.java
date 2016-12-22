@@ -23,7 +23,6 @@ public class GaleriaAdapter extends ArrayAdapter {
     private ArrayList<Filme> imagens;
     private Context context;
     private LayoutInflater inflater;
-    final String TAG = GaleriaAdapter.class.getSimpleName();
 
     public GaleriaAdapter(Context context, ArrayList<Filme> imagens) {
         super(context, R.layout.galeria_imagem, imagens);
@@ -44,7 +43,7 @@ public class GaleriaAdapter extends ArrayAdapter {
                     .load(imagens.get(position).getImagem_path())
                     .into((ImageView) convertView);
         } catch (NullPointerException e){
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
 
         return convertView;

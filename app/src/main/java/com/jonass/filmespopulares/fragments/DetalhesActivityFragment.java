@@ -1,6 +1,5 @@
 package com.jonass.filmespopulares.fragments;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,10 +15,7 @@ import com.jonass.filmespopulares.app.R;
 import com.jonass.filmespopulares.model.Filme;
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -28,6 +24,8 @@ import java.util.Locale;
  * A placeholder fragment containing a simple view.
  */
 public class DetalhesActivityFragment extends Fragment {
+
+    private Filme filme;
 
     public DetalhesActivityFragment() {
     }
@@ -38,12 +36,15 @@ public class DetalhesActivityFragment extends Fragment {
         View viewRoot = inflater.inflate(R.layout.fragment_detalhes, container, false);
         Typeface font = Typer.set(viewRoot.getContext()).getFont(Font.ROBOTO_MEDIUM);
 
-        Intent intent = getActivity().getIntent();
-        Filme filme = (Filme) intent.getSerializableExtra("Info");
         TextView sinopse = (TextView) viewRoot.findViewById(R.id.tv_sinopse);
         TextView avaliacao = (TextView) viewRoot.findViewById(R.id.avaliacao);
         TextView lancamento = (TextView) viewRoot.findViewById(R.id.lancamento);
         ImageView banner = (ImageView) viewRoot.findViewById(R.id.banner);
+
+        Bundle bundle = getActivity().getIntent().getExtras();
+        if(bundle != null) {
+            this.filme = (Filme) bundle.getParcelable(Filme.PARCELABLE_KEY);
+        }
 
         sinopse.setText(filme.getSinopse());
         avaliacao.setText(viewRoot.getResources().getString(R.string.comp_aval, filme.getAvaliacao()));

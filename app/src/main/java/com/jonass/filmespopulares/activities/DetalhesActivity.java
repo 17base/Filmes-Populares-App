@@ -1,6 +1,5 @@
 package com.jonass.filmespopulares.activities;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -15,6 +14,7 @@ import com.jonass.filmespopulares.model.Filme;
 import com.squareup.picasso.Picasso;
 
 public class DetalhesActivity extends AppCompatActivity {
+    private Filme filme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +29,10 @@ public class DetalhesActivity extends AppCompatActivity {
         Typeface font = Typer.set(this).getFont(Font.ROBOTO_MEDIUM);
         collapsingToolbar.setExpandedTitleTypeface(font);
 
-        Intent intent = getIntent();
-        Filme filme = (Filme) intent.getSerializableExtra("Info");
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null) {
+            this.filme = (Filme) bundle.getParcelable(Filme.PARCELABLE_KEY);
+        }
 
         Picasso.with(this)
                 .load(filme.getCapa_path())

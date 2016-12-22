@@ -1,12 +1,14 @@
 package com.jonass.filmespopulares.asynctask;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.jonass.filmespopulares.util.AppConfig;
+import com.jonass.filmespopulares.app.R;
 import com.jonass.filmespopulares.model.Filme;
+import com.jonass.filmespopulares.util.AppConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,23 +33,29 @@ import static com.jonass.filmespopulares.util.AppConfig.SIZE_CAPA;
  */
 
 public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
-    final String TAG = FilmesTask.class.getSimpleName();
     Context context;
     AsyncTaskCompleteListener callback;
+    ProgressDialog pDialog;
 
     public FilmesTask(Context ctx, AsyncTaskCompleteListener cb) {
         this.context = ctx;
         this.callback = cb;
+        pDialog = new ProgressDialog(context);
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        pDialog.setMessage(context.getResources().getString(R.string.dialog_carregando));
+        pDialog.show();
     }
 
     @Override
     protected void onPostExecute(ArrayList<Filme> results) {
         super.onPostExecute(results);
+        if (pDialog != null) {
+            pDialog.dismiss();
+        }
         callback.onTaskComplete(results);
     }
 
@@ -87,7 +95,7 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
             }
             filmesJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.e(TAG, "Error ", e);
+            e.printStackTrace();
             filmesJsonStr = null;
         } finally {
             if (urlConnection != null) {
@@ -97,7 +105,7 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e(TAG, "Error closing stream", e);
+                    e.printStackTrace();
                 }
             }
         }
@@ -105,7 +113,6 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
         try {
             return getFilmesJSON(filmesJsonStr);
         } catch (JSONException e) {
-            Log.e(TAG, e.getMessage(), e);
             e.printStackTrace();
         }
 
@@ -128,14 +135,14 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
 
         for (int i = 0; i < arrayResult.length(); i++) {
             JSONObject infoFilme = arrayResult.getJSONObject(i);
-            String id = infoFilme.getString(OBJ_ID);
-            String iPath = infoFilme.getString(OBJ_IMAG);
+            String id = infoFilme.optString(OBJ_ID);
+            String iPath = infoFilme.optString(OBJ_IMAG);
             String imagem_path = BASE_IMG + SIZE_BANNER + iPath;
-            String titulo = infoFilme.getString(OBJ_TITL);
-            String sinopse = infoFilme.getString(OBJ_SINP);
-            String avaliacao = infoFilme.getString(OBJ_AVAL);
-            String lancamento = infoFilme.getString(OBJ_LANC);
-            String cPath = infoFilme.getString(OBJ_CAPA);
+            String titulo = infoFilme.optString(OBJ_TITL);
+            String sinopse = infoFilme.optString(OBJ_SINP);
+            String avaliacao = infoFilme.optString(OBJ_AVAL);
+            String lancamento = infoFilme.optString(OBJ_LANC);
+            String cPath = infoFilme.optString(OBJ_CAPA);
             String capa_path = BASE_IMG + SIZE_CAPA + cPath;
 
             Filme filme = new Filme(id, imagem_path, titulo, sinopse, avaliacao, lancamento, capa_path);
