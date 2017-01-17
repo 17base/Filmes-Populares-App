@@ -40,8 +40,9 @@ public class Filme implements Parcelable {
     };
 
     private Filme(Parcel in) {
+        id = in.readString();
         titulo = in.readString();
-        imagem_path  = in.readString();
+        imagem_path = in.readString();
         sinopse = in.readString();
         avaliacao = in.readString();
         lancamento = in.readString();
@@ -50,6 +51,7 @@ public class Filme implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(titulo);
         dest.writeString(imagem_path);
         dest.writeString(sinopse);
@@ -111,11 +113,11 @@ public class Filme implements Parcelable {
         this.lancamento = lancamento;
     }
 
-    public String getCapa_path(){
+    public String getCapa_path() {
         return capa_path;
     }
 
-    public void setCapa_path(String capa_path){
+    public void setCapa_path(String capa_path) {
         this.capa_path = capa_path;
     }
 

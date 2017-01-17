@@ -1,28 +1,39 @@
 <resources>
     <string name="app_name">Filmes Populares</string>
     <string name="action_configuracoes">configuracoes</string>
+    <string name="action_favoritos">favoritos</string>
     <string name="title_activity_configuracoes">Configurações</string>
     <string name="dialog_carregando">Carregando filmes&#8230;</string>
     <string name="comp_aval">%1$s/10</string>
+    <string name="titulo_trailer">Trailer %1$d</string>
+    <string name="content_authority">com.jonass.filmespopulares</string>
 
     <!-- Strings related to SweetAlert -->
     <string name="title_erro">Oops&#8230;</string>
     <string name="title_conexao">Sem conexão</string>
     <string name="content_erro">Ocorreu um problema, verifique sua conexão e tente novamente.</string>
+    <string name="content_erro_favoritos">Não há nenhum filme em sua Coleção de Favoritos.</string>
     <string name="content_conexao">Verifique sua conexão e tente novamente.</string>
     <string name="dialog_cancelar">Cancelar</string>
+    <string name="dialog_confirmar">OK</string>
+    <string name="dialog_alterar">Alterar Classificação</string>
     <string name="dialog_tentar">Tentar Novamente</string>
+    <string name="add_favoritos">Adicionar aos Favoritos</string>
+    <string name="del_favoritos">Remover dos Favoritos</string>
 
     <!-- Strings related to Settings -->
     <string name="pref_classificacao_label">Ordem de Classificação</string>
     <string name="pref_classificacao_key" translatable="false">classificacao</string>
     <string name="pref_classificacao_default" translatable="false">popular</string>
+    <string name="pref_classificacao_favoritos" translatable="false">favoritos</string>
     <string-array name="pref_classificacao_titulo">
         <item>Mais Popular</item>
         <item>Mais votado</item>
+        <item>Favoritos</item>
     </string-array>
     <string-array name="pref_unidade_valor">
         <item>popular</item>
         <item>top_rated</item>
+        <item>favoritos</item>
     </string-array>
 </resources>

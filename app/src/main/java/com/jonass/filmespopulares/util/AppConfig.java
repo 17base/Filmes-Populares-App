@@ -14,4 +14,6 @@ public class AppConfig {
     public final static String BASE_IMG = "http://image.tmdb.org/t/p/";
     public final static String SIZE_BANNER = "w185/";
     public final static String SIZE_CAPA = "w342/";
+    public final static String TRAILERS = "videos";
+    public final static String COMENTARIOS = "reviews";
 }

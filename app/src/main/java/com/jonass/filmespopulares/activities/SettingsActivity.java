@@ -7,7 +7,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-import com.jonass.filmespopulares.app.R;
+import com.jonass.filmespopulares.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application ic_settings.

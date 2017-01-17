@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import com.elmargomez.typer.Font;
 import com.elmargomez.typer.Typer;
-import com.jonass.filmespopulares.app.R;
+import com.jonass.filmespopulares.R;
 import com.jonass.filmespopulares.model.Filme;
 import com.squareup.picasso.Picasso;
 
@@ -30,7 +30,7 @@ public class DetalhesActivity extends AppCompatActivity {
         collapsingToolbar.setExpandedTitleTypeface(font);
 
         Bundle bundle = getIntent().getExtras();
-        if(bundle != null) {
+        if (bundle != null) {
             this.filme = (Filme) bundle.getParcelable(Filme.PARCELABLE_KEY);
         }
 

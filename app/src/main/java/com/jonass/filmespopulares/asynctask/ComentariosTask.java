@@ -5,9 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import com.jonass.filmespopulares.R;
-import com.jonass.filmespopulares.model.Filme;
-import com.jonass.filmespopulares.util.AppConfig;
+import com.jonass.filmespopulares.model.Comentario;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,21 +20,23 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import static com.jonass.filmespopulares.util.AppConfig.APPID;
-import static com.jonass.filmespopulares.util.AppConfig.BASE_IMG;
+import static com.jonass.filmespopulares.util.AppConfig.BASE;
+import static com.jonass.filmespopulares.util.AppConfig.COMENTARIOS;
 import static com.jonass.filmespopulares.util.AppConfig.IDIOMA;
-import static com.jonass.filmespopulares.util.AppConfig.SIZE_BANNER;
-import static com.jonass.filmespopulares.util.AppConfig.SIZE_CAPA;
+import static com.jonass.filmespopulares.util.AppConfig.PATH;
+
 
 /**
  * Created by JonasS on 16/12/2016.
  */
 
-public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
+
+public class ComentariosTask extends AsyncTask<String, Void, ArrayList<Comentario>> {
     Context context;
-    FilmesTaskCompleteListener callback;
+    DetalhesTaskCompleteListener callback;
     ProgressDialog pDialog;
 
-    public FilmesTask(Context ctx, FilmesTaskCompleteListener cb) {
+    public ComentariosTask(Context ctx, DetalhesTaskCompleteListener cb) {
         this.context = ctx;
         this.callback = cb;
         pDialog = new ProgressDialog(context);
@@ -45,30 +45,25 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        pDialog.setMessage(context.getResources().getString(R.string.dialog_carregando));
-        pDialog.show();
     }
 
     @Override
-    protected void onPostExecute(ArrayList<Filme> results) {
+    protected void onPostExecute(ArrayList<Comentario> results) {
         super.onPostExecute(results);
-        if (pDialog != null) {
-            pDialog.dismiss();
-        }
-        callback.onTaskCompleteFilmes(results);
+        callback.onTaskCompleteComentarios(results);
     }
 
     @Override
-    protected ArrayList<Filme> doInBackground(String... args) {
+    protected ArrayList<Comentario> doInBackground(String... args) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
-        String filmesJsonStr = null;
+        String comentariosJsonStr = null;
 
         try {
-            String classificacao = (String) args[0];
+            String filmeId = (String) args[0];
 
-            Uri.Builder b = Uri.parse(AppConfig.BASE).buildUpon().path(AppConfig.PATH).appendPath(classificacao)
+            Uri.Builder b = Uri.parse(BASE).buildUpon().path(PATH).appendPath(filmeId).appendPath(COMENTARIOS)
                     .appendQueryParameter("api_key", APPID).appendQueryParameter("language", IDIOMA);
 
             URL url = new URL(b.build().toString());
@@ -80,7 +75,7 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
-                filmesJsonStr = null;
+                comentariosJsonStr = null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -90,12 +85,12 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
             }
 
             if (buffer.length() == 0) {
-                filmesJsonStr = null;
+                comentariosJsonStr = null;
             }
-            filmesJsonStr = buffer.toString();
+            comentariosJsonStr = buffer.toString();
         } catch (IOException e) {
             e.printStackTrace();
-            filmesJsonStr = null;
+            comentariosJsonStr = null;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -110,7 +105,7 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
         }
 
         try {
-            return getFilmesJSON(filmesJsonStr);
+            return getComentarioJSON(comentariosJsonStr);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -118,37 +113,26 @@ public class FilmesTask extends AsyncTask<String, Void, ArrayList<Filme>> {
         return null;
     }
 
-    private ArrayList<Filme> getFilmesJSON(String tempJSONStr) throws JSONException {
+    private ArrayList<Comentario> getComentarioJSON(String tempJSONStr) throws JSONException {
         final String OBJ_LIST = "results";
         final String OBJ_ID = "id";
-        final String OBJ_IMAG = "poster_path";
-        final String OBJ_TITL = "title";
-        final String OBJ_SINP = "overview";
-        final String OBJ_AVAL = "vote_average";
-        final String OBJ_LANC = "release_date";
-        final String OBJ_CAPA = "backdrop_path";
+        final String OBJ_AUTH = "author";
+        final String OBJ_CONT = "content";
 
-        ArrayList<Filme> resultFilmes = new ArrayList<Filme>();
-
+        ArrayList<Comentario> resultComentarios = new ArrayList<Comentario>();
         JSONObject baseJson = new JSONObject(tempJSONStr);
         JSONArray arrayResult = baseJson.getJSONArray(OBJ_LIST);
 
         for (int i = 0; i < arrayResult.length(); i++) {
-            JSONObject infoFilme = arrayResult.getJSONObject(i);
-            String id = infoFilme.optString(OBJ_ID);
-            String iPath = infoFilme.optString(OBJ_IMAG);
-            String imagem_path = BASE_IMG + SIZE_BANNER + iPath;
-            String titulo = infoFilme.optString(OBJ_TITL);
-            String sinopse = infoFilme.optString(OBJ_SINP);
-            String avaliacao = infoFilme.optString(OBJ_AVAL);
-            String lancamento = infoFilme.optString(OBJ_LANC);
-            String cPath = infoFilme.optString(OBJ_CAPA);
-            String capa_path = BASE_IMG + SIZE_CAPA + cPath;
+            JSONObject infoComentario = arrayResult.getJSONObject(i);
+            String id = infoComentario.optString(OBJ_ID);
+            String autor = infoComentario.optString(OBJ_AUTH);
+            String conteudo = infoComentario.optString(OBJ_CONT);
 
-            Filme filme = new Filme(id, imagem_path, titulo, sinopse, avaliacao, lancamento, capa_path);
-            resultFilmes.add(filme);
+            Comentario comentario = new Comentario(id, autor, conteudo);
+            resultComentarios.add(comentario);
         }
 
-        return resultFilmes;
+        return resultComentarios;
     }
 }

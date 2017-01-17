@@ -11,11 +11,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.jonass.filmespopulares.R;
 import com.jonass.filmespopulares.activities.DetalhesActivity;
+import com.jonass.filmespopulares.activities.SettingsActivity;
 import com.jonass.filmespopulares.adapters.GaleriaAdapter;
-import com.jonass.filmespopulares.app.R;
-import com.jonass.filmespopulares.asynctask.AsyncTaskCompleteListener;
+import com.jonass.filmespopulares.asynctask.FavoritosTask;
 import com.jonass.filmespopulares.asynctask.FilmesTask;
+import com.jonass.filmespopulares.asynctask.FilmesTaskCompleteListener;
 import com.jonass.filmespopulares.model.Filme;
 import com.jonass.filmespopulares.util.Util;
 
@@ -23,13 +25,11 @@ import java.util.ArrayList;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class MainActivityFragment extends Fragment implements AsyncTaskCompleteListener {
+public class MainActivityFragment extends Fragment implements FilmesTaskCompleteListener {
     private GaleriaAdapter adapter;
     private GridView gridView;
     ArrayList<Filme> result = new ArrayList<Filme>();
+    String pref;
 
     public MainActivityFragment() {
     }
@@ -62,10 +62,14 @@ public class MainActivityFragment extends Fragment implements AsyncTaskCompleteL
     }
 
     private void atualizaFilmes() {
-        if(Util.isOnline(getContext())){
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String pref = sharedPreferences.getString(getString(R.string.pref_classificacao_key), getString(R.string.pref_classificacao_default));
-            new FilmesTask(getActivity(), this).execute(pref);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        pref = sharedPreferences.getString(getString(R.string.pref_classificacao_key), getString(R.string.pref_classificacao_default));
+        if (Util.isOnline(getContext())) {
+            if (!pref.equals(getString(R.string.pref_classificacao_favoritos))) {
+                new FilmesTask(getActivity(), this).execute(pref);
+            } else {
+                new FavoritosTask(getActivity(), this).execute();
+            }
         } else {
             //Dica revisão Udacity
             new SweetAlertDialog(getContext(), SweetAlertDialog.WARNING_TYPE)
@@ -92,8 +96,8 @@ public class MainActivityFragment extends Fragment implements AsyncTaskCompleteL
     }
 
     @Override
-    public void onTaskComplete(ArrayList<Filme> results) {
-        if (results == null) {
+    public void onTaskCompleteFilmes(ArrayList<Filme> results) {
+        if (results == null && !pref.equals(getString(R.string.pref_classificacao_favoritos))) {
             new SweetAlertDialog(getContext(), SweetAlertDialog.WARNING_TYPE)
                     .setTitleText(getContext().getResources().getString(R.string.title_erro))
                     .setContentText(getContext().getResources().getString(R.string.content_erro))
@@ -114,11 +118,32 @@ public class MainActivityFragment extends Fragment implements AsyncTaskCompleteL
                         }
                     })
                     .show();
+        } else if (results == null && pref.equals(getString(R.string.pref_classificacao_favoritos))) {
+            new SweetAlertDialog(getContext(), SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(getContext().getResources().getString(R.string.title_erro))
+                    .setContentText(getContext().getResources().getString(R.string.content_erro_favoritos))
+                    .setCancelText(getContext().getResources().getString(R.string.dialog_confirmar))
+                    .setConfirmText(getContext().getResources().getString(R.string.dialog_alterar))
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            sDialog.dismissWithAnimation();
+                            getContext().startActivity(new Intent(getContext(), SettingsActivity.class));
+                        }
+                    })
+                    .showCancelButton(true)
+                    .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            sDialog.dismissWithAnimation();
+                        }
+                    })
+                    .show();
         } else {
             adapter.clear();
             result = results;
 
-            for (Filme f:result) {
+            for (Filme f : result) {
                 adapter.add(f);
             }
         }
