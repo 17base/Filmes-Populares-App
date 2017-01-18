@@ -6,8 +6,7 @@ package com.jonass.filmespopulares.util;
 
 public class AppConfig {
     //Coloque sua chave TMDb aqui
-    //public final static String APPID = "SUA_CHAVE_TMDB_API";
-    public final static String APPID = "6dcb73112d28c44a517df88792cf0725";
+    public final static String APPID = "SUA_CHAVE_TMDB_API";
 
     public final static String BASE = "https://api.themoviedb.org";
     public final static String PATH = "/3/movie/";
