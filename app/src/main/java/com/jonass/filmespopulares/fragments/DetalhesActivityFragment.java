@@ -6,11 +6,17 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -40,6 +46,8 @@ import java.util.List;
 
 public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCompleteListener {
 
+    public static final String DF_TAG = DetalhesActivityFragment.class.getSimpleName();
+
     private Filme filme;
     private Typeface font;
     private TextView sinopse;
@@ -49,6 +57,9 @@ public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCo
     private Button bFavorito;
     private View cDivider;
     private View tDivider;
+
+    private ShareActionProvider cActionProvider;
+    private Trailer cTrailer;
 
     private TrailerAdapter trailerAdapter;
     private RecyclerView tRecyclerView;
@@ -79,6 +90,8 @@ public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCo
         bFavorito = (Button) view.findViewById(R.id.btn_favorito);
         tDivider = view.findViewById(R.id.below_sinopse);
         cDivider = view.findViewById(R.id.below_trailer);
+        tRecyclerView = (RecyclerView) view.findViewById(R.id.rv_trailers);
+        cRecyclerView = (RecyclerView) view.findViewById(R.id.rv_comentarios);
     }
 
     @Override
@@ -88,34 +101,77 @@ public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCo
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (filme != null) {
+            inflater.inflate(R.menu.menu_detalhes, menu);
+
+            MenuItem compartilhar = menu.findItem(R.id.action_compartilhar);
+
+            cActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(compartilhar);
+
+            if (cTrailer != null) {
+                cActionProvider.setShareIntent(getIntentShare());
+            }
+        }
+    }
+
+    private Intent getIntentShare() {
+        return new Intent(Intent.ACTION_SEND)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+                .setType("text/plain")
+                .putExtra(Intent.EXTRA_TEXT, filme.getTitulo() + " " +
+                        "http://www.youtube.com/watch?v=" + cTrailer.getKey());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View viewRoot = inflater.inflate(R.layout.fragment_detalhes, container, false);
 
         carregarComponentes(viewRoot);
 
-        Bundle bundle = getActivity().getIntent().getExtras();
+        Bundle bundle = getArguments();
         if (bundle != null) {
             this.filme = (Filme) bundle.getParcelable(Filme.PARCELABLE_KEY);
+            ImageView capa = (ImageView) viewRoot.findViewById(R.id.capa);
+            CoordinatorLayout detalhesLayout = (CoordinatorLayout) viewRoot.findViewById(R.id.content_detalhes);
+            Picasso.with(viewRoot.getContext())
+                    .load(filme.getCapa_path())
+                    .into(capa);
+            detalhesLayout.setVisibility(View.VISIBLE);
+        } else {
+            bundle = getActivity().getIntent().getExtras();
+            if (bundle != null) {
+                this.filme = (Filme) bundle.getParcelable(Filme.PARCELABLE_KEY);
+            }
         }
 
-        new AsyncTask<Void, Void, Integer>() {
-            @Override
-            protected Integer doInBackground(Void... params) {
-                return Util.checkFavorito(getActivity(), filme.getId());
-            }
-
-            @Override
-            protected void onPostExecute(Integer isFavorito) {
-                if (isFavorito == 1) {
-                    bFavorito.setText(getString(R.string.del_favoritos));
-                    bFavorito.setBackgroundColor(getResources().getColor(R.color.colorAccentLight));
-                } else {
-                    bFavorito.setText(getString(R.string.add_favoritos));
-                    bFavorito.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        if (filme != null) {
+            new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... params) {
+                    return Util.checkFavorito(getActivity(), filme.getId());
                 }
-            }
-        }.execute();
+
+                @Override
+                protected void onPostExecute(Integer isFavorito) {
+                    if (isFavorito == 1) {
+                        bFavorito.setText(getString(R.string.del_favoritos));
+                        bFavorito.setBackgroundColor(getResources().getColor(R.color.colorAccentLight));
+                    } else {
+                        bFavorito.setText(getString(R.string.add_favoritos));
+                        bFavorito.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                    }
+                }
+            }.execute();
+
+            sinopse.setText(filme.getSinopse());
+            avaliacao.setText(viewRoot.getResources().getString(R.string.comp_aval, filme.getAvaliacao()));
+            lancamento.setText(Util.getData(filme.getLancamento()));
+            Picasso.with(viewRoot.getContext())
+                    .load(filme.getImagem_path())
+                    .into(banner);
+        }
 
         bFavorito.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,17 +230,8 @@ public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCo
             }
         });
 
-        sinopse.setText(filme.getSinopse());
-        avaliacao.setText(viewRoot.getResources().getString(R.string.comp_aval, filme.getAvaliacao()));
         avaliacao.setTypeface(font);
-        lancamento.setText(Util.getData(filme.getLancamento()));
         lancamento.setTypeface(font);
-
-        Picasso.with(viewRoot.getContext())
-                .load(filme.getImagem_path())
-                .into(banner);
-
-        tRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.rv_trailers);
 
         trailerAdapter = new TrailerAdapter(trailerList);
         RecyclerView.LayoutManager tLayoutManager = new LinearLayoutManager(getActivity());
@@ -202,9 +249,6 @@ public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCo
             }
         }));
 
-
-        cRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.rv_comentarios);
-
         comentariosAdapter = new ComentariosAdapter(comentariosList);
         RecyclerView.LayoutManager cLayoutManager = new LinearLayoutManager(getActivity());
         cRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
@@ -221,6 +265,11 @@ public class DetalhesActivityFragment extends Fragment implements DetalhesTaskCo
             if (trailers.size() > 0) {
                 trailerAdapter.clear();
                 tDivider.setVisibility(View.VISIBLE);
+
+                cTrailer = trailers.get(0);
+                if (cActionProvider != null) {
+                    cActionProvider.setShareIntent(getIntentShare());
+                }
 
                 for (Trailer t : trailers) {
                     trailerList.add(t);

@@ -21,8 +21,8 @@ public class DetalhesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalhes);
 
-        ImageView capa = (ImageView) findViewById(R.id.capa);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ImageView capa = (ImageView) findViewById(R.id.capa);
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         setSupportActionBar(toolbar);
 
@@ -34,11 +34,13 @@ public class DetalhesActivity extends AppCompatActivity {
             this.filme = (Filme) bundle.getParcelable(Filme.PARCELABLE_KEY);
         }
 
-        Picasso.with(this)
-                .load(filme.getCapa_path())
-                .into(capa);
+        if (filme != null) {
+            getSupportActionBar().setTitle(filme.getTitulo());
+            Picasso.with(this)
+                    .load(filme.getCapa_path())
+                    .into(capa);
+        }
 
-        getSupportActionBar().setTitle(filme.getTitulo());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

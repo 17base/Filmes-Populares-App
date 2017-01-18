@@ -12,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.jonass.filmespopulares.R;
-import com.jonass.filmespopulares.activities.DetalhesActivity;
 import com.jonass.filmespopulares.activities.SettingsActivity;
 import com.jonass.filmespopulares.adapters.GaleriaAdapter;
 import com.jonass.filmespopulares.asynctask.FavoritosTask;
@@ -26,12 +25,18 @@ import java.util.ArrayList;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class MainActivityFragment extends Fragment implements FilmesTaskCompleteListener {
+    public static final String M_TAG = MainActivityFragment.class.getSimpleName();
+
     private GaleriaAdapter adapter;
     private GridView gridView;
     ArrayList<Filme> result = new ArrayList<Filme>();
     String pref;
 
     public MainActivityFragment() {
+    }
+
+    public interface Callback {
+        public void onItemSelected(Filme filme);
     }
 
     @Override
@@ -52,9 +57,8 @@ public class MainActivityFragment extends Fragment implements FilmesTaskComplete
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getActivity(), DetalhesActivity.class);
-                intent.putExtra(Filme.PARCELABLE_KEY, (Filme) adapter.getItem(i));
-                startActivity(intent);
+                Filme callback = (Filme) adapter.getItem(i);
+                ((Callback) getActivity()).onItemSelected(callback);
             }
         });
 

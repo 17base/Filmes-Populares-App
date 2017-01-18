@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Filmes Populares</string>
     <string name="action_configuracoes">configuracoes</string>
+    <string name="action_compartilhar">compartilhar</string>
     <string name="action_favoritos">favoritos</string>
     <string name="title_activity_configuracoes">Configurações</string>
     <string name="dialog_carregando">Carregando filmes&#8230;</string>
